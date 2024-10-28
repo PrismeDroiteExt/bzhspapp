@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/prismedroiteext/breizhsport/auth-service/internal/models"
 	"gorm.io/driver/postgres"
@@ -12,20 +13,33 @@ import (
 var db *gorm.DB
 
 func InitDB() error {
+	var err error
+	maxRetries := 5
+	retryInterval := time.Second * 5
+
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
+		os.Getenv("AUTH_DB_HOST"),
+		os.Getenv("AUTH_DB_USER"),
+		os.Getenv("AUTH_DB_PASSWORD"),
+		os.Getenv("AUTH_DB_NAME"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_SSLMODE"),
 		os.Getenv("DB_TIMEZONE"),
 	)
 
-	var err error
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	for i := 0; i < maxRetries; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			break
+		}
+		fmt.Printf("Failed to connect to database, attempt %d/%d: %v\n", i+1, maxRetries, err)
+		if i < maxRetries-1 {
+			time.Sleep(retryInterval)
+		}
+	}
+
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to connect to auth database after %d attempts: %v", maxRetries, err)
 	}
 
 	// Auto migrate models

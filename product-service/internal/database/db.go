@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"bzhspback.fr/breizhsport/internal/models"
@@ -10,33 +9,29 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var db *gorm.DB
 
-func InitDB() {
-
+func InitDB() error {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
+		os.Getenv("PRODUCT_DB_HOST"),
+		os.Getenv("PRODUCT_DB_USER"),
+		os.Getenv("PRODUCT_DB_PASSWORD"),
+		os.Getenv("PRODUCT_DB_NAME"),
 		os.Getenv("DB_PORT"),
 		os.Getenv("DB_SSLMODE"),
 		os.Getenv("DB_TIMEZONE"),
 	)
 
 	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		return fmt.Errorf("failed to connect to product database: %v", err)
 	}
 
-	// Auto Migrate
-	err = DB.AutoMigrate(&models.User{}, &models.Product{}, &models.Category{}, &models.Order{}, &models.Brand{}, &models.Cart{}, &models.CartItem{}, &models.Payment{})
-	if err != nil {
-		log.Fatal("Failed to auto migrate:", err)
-	}
+	// Auto migrate models
+	return db.AutoMigrate(&models.Product{}, &models.Brand{}, &models.Category{})
 }
 
 func GetDB() *gorm.DB {
-	return DB
+	return db
 }
