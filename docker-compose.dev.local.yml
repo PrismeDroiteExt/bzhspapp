@@ -1,5 +1,5 @@
 services:
-  back:
+  product-service:
     build:
       context: .
       dockerfile: ./dockerfiles/Dockerfile-local
@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./app:/app
+      - ./product-service:/app
     environment:
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
@@ -20,6 +20,25 @@ services:
     depends_on:
       - db
     entrypoint: "./scripts/dev-entrypoint.sh"
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=auth_db
+      - DB_PORT=${DB_PORT}
+      - DB_SSLMODE=${DB_SSLMODE}
+      - DB_TIMEZONE=${TIMEZONE}
+      - GIN_MODE=${GIN_MODE}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - db
   db:
     image: postgres:17
     restart: unless-stopped

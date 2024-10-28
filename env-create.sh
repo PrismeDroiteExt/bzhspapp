@@ -66,6 +66,11 @@ if [ -z "${GIN_MODE}" ]
     fi
 fi
 
+read -p "Enter JWT secret key for authentication: " JWT_SECRET
+if [ -z "${JWT_SECRET}" ]
+then
+    JWT_SECRET=$(openssl rand -base64 32)
+fi
 
 # Create .env file
 cat > .env <<EOL
@@ -81,4 +86,5 @@ DB_PORT=${DB_PORT}
 # CB_ADMIN_NAME=${CB_ADMIN_NAME}
 # CB_ADMIN_PASSWORD=${CB_ADMIN_PASSWORD}
 GIN_MODE=${GIN_MODE}
+JWT_SECRET=${JWT_SECRET}
 EOL
