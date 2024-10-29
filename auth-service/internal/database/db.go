@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -22,7 +23,7 @@ func InitDB() error {
 		os.Getenv("AUTH_DB_USER"),
 		os.Getenv("AUTH_DB_PASSWORD"),
 		os.Getenv("AUTH_DB_NAME"),
-		os.Getenv("DB_PORT"),
+		os.Getenv("AUTH_DB_PORT"),
 		os.Getenv("DB_SSLMODE"),
 		os.Getenv("DB_TIMEZONE"),
 	)
@@ -30,9 +31,10 @@ func InitDB() error {
 	for i := 0; i < maxRetries; i++ {
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err == nil {
+			log.Printf("Successfully connected to database on attempt %d", i+1)
 			break
 		}
-		fmt.Printf("Failed to connect to database, attempt %d/%d: %v\n", i+1, maxRetries, err)
+		log.Printf("Failed to connect to database, attempt %d/%d: %v", i+1, maxRetries, err)
 		if i < maxRetries-1 {
 			time.Sleep(retryInterval)
 		}
