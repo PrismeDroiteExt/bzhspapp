@@ -81,7 +81,12 @@ func (r *AuthRepository) UpdatePassword(userID uint, hashedPassword string) erro
 	return r.db.Model(&models.User{}).Where("id = ?", userID).Update("password", hashedPassword).Error
 }
 
-// UpdateUser met à jour les informations d'un utilisateur
-func (r *AuthRepository) UpdateUser(userID uint, req dto.UpdateProfileRequest) error {
-	return r.db.Model(&models.User{}).Where("id = ?", userID).Updates(req).Error
+// UpdateUser met à jour les informations d'un utilisateur et retourne l'utilisateur mis à jour
+func (r *AuthRepository) UpdateUser(userID uint, req dto.UpdateProfileRequest) (models.User, error) {
+	var user models.User
+	result := r.db.Model(&models.User{}).Where("id = ?", userID).Updates(req).First(&user)
+	if result.Error != nil {
+		return models.User{}, result.Error
+	}
+	return user, nil
 }

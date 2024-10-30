@@ -26,7 +26,7 @@ func InitRoutes(r *gin.Engine) {
 
 		// Protected routes
 		protected := auth.Group("/")
-		protected.Use(middleware.JWTAuthMiddleware())
+		protected.Use(middleware.JWTAuthMiddleware(cfg))
 		{
 			protected.POST("/logout", controller.Logout)
 			protected.GET("/me", controller.GetProfile)

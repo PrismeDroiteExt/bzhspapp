@@ -21,5 +21,11 @@ type TokenResponse struct {
 type UpdateProfileRequest struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-	Email     string `json:"email" binding:"omitempty,email"`
+	// TODO: Add other fields if needed
+}
+
+type UserResponse struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	// TODO: Add other fields if needed
 }

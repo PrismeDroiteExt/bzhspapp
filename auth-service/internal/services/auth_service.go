@@ -156,11 +156,22 @@ func (s *AuthService) generateRefreshToken(user models.User) (string, error) {
 }
 
 // GetUserProfile récupère les informations de profil d'un utilisateur
-func (s *AuthService) GetUserProfile(userID uint) (models.User, error) {
-	return s.repo.GetUserByID(userID)
+func (s *AuthService) GetUserProfile(userID uint) (dto.UserResponse, error) {
+	user, err := s.repo.GetUserByID(userID)
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+	return dto.UserResponse{Email: user.Email, Username: user.FirstName + " " + user.LastName}, nil
 }
 
 // UpdateProfile met à jour les informations de profil d'un utilisateur
-func (s *AuthService) UpdateProfile(userID uint, req dto.UpdateProfileRequest) error {
-	return s.repo.UpdateUser(userID, req)
+func (s *AuthService) UpdateProfile(userID uint, req dto.UpdateProfileRequest) (dto.UserResponse, error) {
+	user, err := s.repo.UpdateUser(userID, req)
+	if err != nil {
+		return dto.UserResponse{}, err
+	}
+	return dto.UserResponse{
+		Email:    user.Email,
+		Username: user.FirstName + " " + user.LastName,
+	}, nil
 }
