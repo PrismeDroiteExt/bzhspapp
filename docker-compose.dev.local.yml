@@ -35,7 +35,8 @@ services:
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
     depends_on:
-      - db-product
+      db-product:
+        condition: service_healthy
 
   db-auth:
     image: postgres:17
@@ -63,6 +64,11 @@ services:
       - product-db-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   auth-db-data:

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"bzhspback.fr/breizhsport/internal/api/v1"
 	"bzhspback.fr/breizhsport/internal/database"
 	"github.com/gin-gonic/gin"
@@ -9,9 +11,14 @@ import (
 func main() {
 	r := gin.Default()
 
-	database.InitDB()
-	db := database.GetDB()
-	api.InitRoutes(r, db)
+	// Initialize database
+	if err := database.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 
-	r.Run()
+	// Initialize routes
+	api.InitRoutes(r)
+
+	// Start server
+	r.Run(":8081")
 }

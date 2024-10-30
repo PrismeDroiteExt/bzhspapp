@@ -2,14 +2,18 @@ package api
 
 import (
 	"bzhspback.fr/breizhsport/internal/controllers"
+	"bzhspback.fr/breizhsport/internal/database"
 	"bzhspback.fr/breizhsport/internal/repository"
 	"bzhspback.fr/breizhsport/internal/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-func InitRoutes(r *gin.Engine, db *gorm.DB) {
+func InitRoutes(r *gin.Engine) {
 	apiv1 := r.Group("/api/v1")
+
+	// Initialize database
+	db := database.GetDB()
 
 	initBrandRoutes(apiv1, db)
 	initProductRoutes(apiv1, db)
