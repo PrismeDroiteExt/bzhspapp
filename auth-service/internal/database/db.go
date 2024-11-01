@@ -23,7 +23,7 @@ func InitDB() error {
 		os.Getenv("AUTH_DB_USER"),
 		os.Getenv("AUTH_DB_PASSWORD"),
 		os.Getenv("AUTH_DB_NAME"),
-		os.Getenv("AUTH_DB_PORT"),
+		os.Getenv("DB_PORT"),
 		os.Getenv("DB_SSLMODE"),
 		os.Getenv("DB_TIMEZONE"),
 	)

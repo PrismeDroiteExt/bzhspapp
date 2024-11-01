@@ -1,21 +1,6 @@
+# Start from the official Go image
 FROM golang:1.23.2-alpine
-
+# Set the Current Working Directory inside the container
 WORKDIR /app
-
-COPY . .
-
-RUN go mod download
-
-RUN go build -o main ./cmd/web/main.go
-
+ENV GIN_MODE=release
 EXPOSE 8081
-
-# Vérification des variables d'environnement requises
-ENV PRODUCT_DB_HOST=db-product \
-    PRODUCT_DB_USER=product_user \
-    PRODUCT_DB_NAME=product_db \
-    DB_PORT=5432 \
-    DB_SSLMODE=disable \
-    GIN_MODE=release
-
-CMD ["./main"]
