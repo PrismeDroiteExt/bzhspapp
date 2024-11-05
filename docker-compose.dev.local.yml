@@ -1,12 +1,12 @@
 services:
   auth-service:
     build:
-      context: ./auth-service
-      dockerfile: Dockerfile
+      context: ./bzhspauth/auth-service
+      dockerfile: Dockerfile-local
     ports:
       - "8082:8082"
     volumes:
-      - ./auth-service:/app
+      - ./bzhspauth/auth-service:/app
     environment:
       - AUTH_DB_HOST=${AUTH_DB_HOST}
       - AUTH_DB_USER=${AUTH_DB_USER}
@@ -18,19 +18,19 @@ services:
       - GIN_MODE=${GIN_MODE}
       - JWT_SECRET=${JWT_SECRET}
     entrypoint:
-      - ./scripts/dev-entrypoint.sh
+      - ./bzhspauth/scripts/dev-entrypoint.sh
     depends_on:
       db-auth:
         condition: service_healthy
 
   product-service:
     build:
-      context: ./product-service
-      dockerfile: Dockerfile
+      context: ./bzhspproduct/product-service
+      dockerfile: Dockerfile-local
     ports:
       - "8081:8081"
     volumes:
-      - ./product-service:/app
+      - ./bzhspproduct/product-service:/app
     environment:
       - PRODUCT_DB_HOST=${PRODUCT_DB_HOST}
       - PRODUCT_DB_USER=${PRODUCT_DB_USER}
@@ -41,7 +41,7 @@ services:
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
     entrypoint:
-      - ./scripts/dev-entrypoint.sh
+      - ./bzhspproduct/scripts/dev-entrypoint.sh
     depends_on:
       db-product:
         condition: service_healthy
