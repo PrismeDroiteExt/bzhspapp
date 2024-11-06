@@ -1,0 +1,6 @@
+[submodule "bzhspauth"]
+	path = bzhspauth
+	url = https://github.com/prismedroiteext/bzhspauth
+[submodule "bzhspproduct"]
+	path = bzhspproduct
+	url = https://github.com/prismedroiteext/bzhspproduct

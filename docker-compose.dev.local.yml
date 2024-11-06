@@ -1,44 +1,83 @@
 services:
-  back:
+  auth-service:
     build:
-      context: .
-      dockerfile: ./dockerfiles/Dockerfile-local
-    restart: unless-stopped
+      context: ./bzhspauth/auth-service
+      dockerfile: Dockerfile-local
     ports:
-      - "8080:8080"
+      - "8082:8082"
     volumes:
-      - ./app:/app
+      - ./bzhspauth/auth-service:/app
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      - AUTH_DB_HOST=${AUTH_DB_HOST}
+      - AUTH_DB_USER=${AUTH_DB_USER}
+      - AUTH_DB_PASSWORD=${AUTH_DB_PASSWORD}
+      - AUTH_DB_NAME=${AUTH_DB_NAME}
       - DB_PORT=${DB_PORT}
       - DB_SSLMODE=${DB_SSLMODE}
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
+      - JWT_SECRET=${JWT_SECRET}
+    entrypoint:
+      - ./bzhspauth/scripts/dev-entrypoint.sh
     depends_on:
-      - db
-    entrypoint: "./scripts/dev-entrypoint.sh"
-  db:
-    image: postgres:17
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - ./db-data:/var/lib/postgresql/data
-      - ./test.sql:/docker-entrypoint-initdb.d/test.sql
-  cloudbeaver:
-    image: dbeaver/cloudbeaver:latest
-    restart: unless-stopped
+      db-auth:
+        condition: service_healthy
+
+  product-service:
+    build:
+      context: ./bzhspproduct/product-service
+      dockerfile: Dockerfile-local
     ports:
-      - "8978:8978"
+      - "8081:8081"
     volumes:
-      - ./cloudbeaver/workspace:/opt/cloudbeaver/workspace
-    # environment:
-    #   - CB_ADMIN_NAME=${CB_ADMIN_NAME}
-    #   - CB_ADMIN_PASSWORD=${CB_ADMIN_PASSWORD}
+      - ./bzhspproduct/product-service:/app
+    environment:
+      - PRODUCT_DB_HOST=${PRODUCT_DB_HOST}
+      - PRODUCT_DB_USER=${PRODUCT_DB_USER}
+      - PRODUCT_DB_PASSWORD=${PRODUCT_DB_PASSWORD}
+      - PRODUCT_DB_NAME=${PRODUCT_DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_SSLMODE=${DB_SSLMODE}
+      - DB_TIMEZONE=${TIMEZONE}
+      - GIN_MODE=${GIN_MODE}
+    entrypoint:
+      - ./bzhspproduct/scripts/dev-entrypoint.sh
     depends_on:
-      - db
+      db-product:
+        condition: service_healthy
+
+  db-auth:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB_NAME}
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USER} -d ${AUTH_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db-product:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${PRODUCT_DB_USER}
+      POSTGRES_PASSWORD: ${PRODUCT_DB_PASSWORD}
+      POSTGRES_DB: ${PRODUCT_DB_NAME}
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth-db-data:
+  product-db-data:
