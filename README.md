@@ -36,63 +36,29 @@ The project follows a typical Go application structure that you can find in [arc
 
 1. Clone the repository:
 
-   ```
-   git clone https://github.com/PrismeDroiteExt/bzhspback.git
+   ```bash
+   git clone --recurse-submodules https://github.com/PrismeDroiteExt/bzhspback.git
    cd breizhsport-backend
    ```
 
 2. Create a `.env` file in the root directory. You can use the `env-create.sh` script to help you set up the environment variables:
 
-   ```
+   ```bash
    ./env-create.sh
    ```
 
 3. Build and start the Docker containers:
-   ```
-   docker-compose up --build
-   ```
-
-The API should now be running and accessible at `http://localhost:8080`.
-
-## API Endpoints
-
-The main API routes are defined in `app/internal/api/v1/routes.go`. Here are the current endpoints:
-
-- Products:
-
-  - GET `/api/v1/products/:id`: Get a product by ID
-  - GET `/api/v1/products/category/:category_id`: Get products by category ID
-
-- Brands:
-  - GET `/api/v1/brands`: Get all brands
-  - GET `/api/v1/brands/:id`: Get a brand by ID
-
-## Making Requests
-
-You can use tools like cURL, Postman, or any HTTP client to make requests to the API. Here are some examples:
-
-1. Get a product by ID:
-
-   ```
-   curl http://localhost:8080/api/v1/products/1
+   ```bash
+   docker compose -f docker-compose.dev.local.yml up --build
    ```
 
-2. Get products by category ID:
+The `product service` should now be running and accessible at `http://localhost:8081`.
 
-   ```
-   curl http://localhost:8080/api/v1/products/category/1
-   ```
+The `auth service` should now be running and accessible at `http://localhost:8082`.
 
-3. Get products by category ID with filters:
-   ```
-   curl "http://localhost:8080/api/v1/products/category/1?brand=1,2,3&min_price=50&max_price=100&colors=red,blue&sizes=M,L"
-   ```
+4. To test the services, you can access the `swagger` UI at `http://localhost:8081/swagger/index.html` for the product service and `http://localhost:8082/swagger/index.html` for the auth service.
 
-## Development
 
-The application uses Go Modules for dependency management. To add or update dependencies, use the `go get` command.
-
-The `docker-compose.yml` file is set up for local development, with hot-reloading enabled. Any changes you make to the Go files will trigger a rebuild of the application.
 
 ## License
 
