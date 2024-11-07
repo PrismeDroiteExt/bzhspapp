@@ -1,11 +1,10 @@
 services:
   auth-service:
-    image: ghcr.io/prismedroiteext/bzhspauth
-    restart: unless-stopped
+#    image: 
     ports:
       - "8082:8082"
-    # volumes:
-    #   - ./auth-service:/app
+    volumes:
+      - ./bzhspauth/app:/app
     environment:
       - AUTH_DB_HOST=${AUTH_DB_HOST}
       - AUTH_DB_USER=${AUTH_DB_USER}
@@ -16,19 +15,26 @@ services:
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
       - JWT_SECRET=${JWT_SECRET}
-    # entrypoint:
-    #   - ./scripts/dev-entrypoint.sh
     depends_on:
-      db-auth:
-        condition: service_healthy
+      - db-auth
+  db-auth:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_DB: ${AUTH_DB_NAME}
+    volumes:
+      - ./volumes/auth-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
 
   product-service:
-    image: ghcr.io/prismedroiteext/bzhspproduct
-    restart: unless-stopped
+#    image:
     ports:
       - "8081:8081"
-    # volumes:
-    #   - ./product-service:/app
+    volumes:
+      - ./bzhspproduct/app:/app
     environment:
       - PRODUCT_DB_HOST=${PRODUCT_DB_HOST}
       - PRODUCT_DB_USER=${PRODUCT_DB_USER}
@@ -38,28 +44,8 @@ services:
       - DB_SSLMODE=${DB_SSLMODE}
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
-    # entrypoint:
-    #   - ./scripts/dev-entrypoint.sh
     depends_on:
-      db-product:
-        condition: service_healthy
-
-  db-auth:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${AUTH_DB_USER}
-      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
-      POSTGRES_DB: ${AUTH_DB_NAME}
-    volumes:
-      - auth-db-data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${AUTH_DB_USER} -d ${AUTH_DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
+      - db-product
   db-product:
     image: postgres:17
     environment:
@@ -67,15 +53,6 @@ services:
       POSTGRES_PASSWORD: ${PRODUCT_DB_PASSWORD}
       POSTGRES_DB: ${PRODUCT_DB_NAME}
     volumes:
-      - product-db-data:/var/lib/postgresql/data
+      - ./volumes/product-db-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PRODUCT_DB_USER} -d ${PRODUCT_DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-# volumes:
-#   auth-db-data:
-#   product-db-data:
