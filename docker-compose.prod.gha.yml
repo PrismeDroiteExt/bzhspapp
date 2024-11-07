@@ -1,6 +1,6 @@
 services:
   auth-service:
-#    image: 
+    image: ghcr.io/prismedroiteext/bzhspauth
     ports:
       - "8082:8082"
     volumes:
@@ -30,7 +30,7 @@ services:
 
 
   product-service:
-#    image:
+    image: ghcr.io/prismedroiteext/bzhspproduct
     ports:
       - "8081:8081"
     volumes:
