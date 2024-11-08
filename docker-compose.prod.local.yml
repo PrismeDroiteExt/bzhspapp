@@ -30,6 +30,7 @@ services:
     ports:
       - "5433:5432"
 
+
   product-service:
     build:
       context: ./bzhspproduct/app
@@ -59,3 +60,15 @@ services:
       - ./volumes/product-db-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
+
+
+  front:
+    build:
+      context: ./bzhspfront/
+      dockerfile: ./dockerfiles/Dockerfile-gha
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - AUTH_API_URL=http://localhost:8081
+      - PRODUCT_API_URL=http://localhost:8082

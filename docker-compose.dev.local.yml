@@ -64,3 +64,17 @@ services:
       - ./volumes/product-db-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
+
+  front:
+    build:
+      context: ./bzhspfront/
+      dockerfile: ./dockerfiles/Dockerfile-local
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./bzhspfront/app:/app
+    environment:
+      - NODE_ENV=development
+      - AUTH_API_URL=http://localhost:8081
+      - PRODUCT_API_URL=http://localhost:8082
+    entrypoint: "./dev-entrypoint.sh"
