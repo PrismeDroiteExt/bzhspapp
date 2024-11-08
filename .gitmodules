@@ -4,3 +4,6 @@
 [submodule "bzhspproduct"]
 	path = bzhspproduct
 	url = https://github.com/prismedroiteext/bzhspproduct
+[submodule "bzhspfront"]
+	path = bzhspfront
+	url = git@github.com:prismedroiteext/bzhspfront
