@@ -14,6 +14,7 @@ on:
     tags: ["v*.*.*"]
   pull_request:
     branches: ["main", "dev"]
+    types: [opened, synchronize, reopened]
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -116,3 +117,15 @@ jobs:
         #         cosign sign --yes $tag@$DIGEST
         #       done
             
+  sonarqube:
+      name: SonarQube
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+          with:
+            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+        - name: SonarQube Scan
+          uses: SonarSource/sonarqube-scan-action@v4
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
