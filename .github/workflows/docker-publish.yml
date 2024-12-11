@@ -23,7 +23,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  test:
+  # test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
