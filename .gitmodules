@@ -1,9 +1,9 @@
 [submodule "bzhspauth"]
 	path = bzhspauth
-	url = https://github.com/prismedroiteext/bzhspauth
+	url = git@github.com:prismedroiteext/bzhspauth
 [submodule "bzhspproduct"]
 	path = bzhspproduct
-	url = https://github.com/prismedroiteext/bzhspproduct
+	url = git@github.com:prismedroiteext/bzhspproduct
 [submodule "bzhspfront"]
 	path = bzhspfront
 	url = git@github.com:prismedroiteext/bzhspfront

@@ -18,7 +18,7 @@ services:
       - GIN_MODE=${GIN_MODE}
       - JWT_SECRET=${JWT_SECRET}
     entrypoint:
-      - ./bzhspauth/app/scripts/dev-entrypoint.sh
+      - ./scripts/dev-entrypoint.sh
     depends_on:
       - db-auth
   db-auth:
@@ -30,7 +30,7 @@ services:
     volumes:
       - ./volumes/auth-db-data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "${DB_AUTH_PORT}:5432"
 
 
   product-service:
@@ -51,7 +51,7 @@ services:
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
     entrypoint:
-      - ./bzhspproduct/app/scripts/dev-entrypoint.sh
+      - ./scripts/dev-entrypoint.sh
     depends_on:
       - db-product
   db-product:
@@ -63,7 +63,7 @@ services:
     volumes:
       - ./volumes/product-db-data:/var/lib/postgresql/data
     ports:
-      - "5434:5432"
+      - "${DB_PRODUCT_PORT}:5432"
 
   front:
     build:

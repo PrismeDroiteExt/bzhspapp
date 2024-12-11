@@ -14,11 +14,14 @@ AUTH_DB_HOST=${AUTH_DB_HOST:-db-auth}
 read -p "Enter Auth DB user (default: auth_user): " AUTH_DB_USER
 AUTH_DB_USER=${AUTH_DB_USER:-auth_user}
 
-read -p "Enter Auth DB password: " AUTH_DB_PASSWORD
-if [ -z "${AUTH_DB_PASSWORD}" ]
-then
-    AUTH_DB_PASSWORD=$(openssl rand -base64 32)
-fi
+# read -p "Enter Auth DB password: " AUTH_DB_PASSWORD
+# if [ -z "${AUTH_DB_PASSWORD}" ]
+# then
+#     AUTH_DB_PASSWORD=$(openssl rand -base64 32)
+# fi
+
+read -p "Enter Auth DB password(default: auth_password): " AUTH_DB_PASSWORD
+AUTH_DB_PASSWORD=${AUTH_DB_PASSWORD:-auth_password}
 
 read -p "Enter Auth DB name (default: auth_db): " AUTH_DB_NAME
 AUTH_DB_NAME=${AUTH_DB_NAME:-auth_db}
@@ -30,17 +33,20 @@ PRODUCT_DB_HOST=${PRODUCT_DB_HOST:-db-product}
 read -p "Enter Product DB user (default: product_user): " PRODUCT_DB_USER
 PRODUCT_DB_USER="${PRODUCT_DB_USER:-product_user}"
 
-read -p "Enter Product DB password: " PRODUCT_DB_PASSWORD
-if [ -z "${PRODUCT_DB_PASSWORD}" ]
-then
-    PRODUCT_DB_PASSWORD=$(openssl rand -base64 32)
-fi
+# read -p "Enter Product DB password: " PRODUCT_DB_PASSWORD
+# if [ -z "${PRODUCT_DB_PASSWORD}" ]
+# then
+#     PRODUCT_DB_PASSWORD=$(openssl rand -base64 32)
+# fi
+
+read -p "Enter Product DB password(default: product_password): " PRODUCT_DB_PASSWORD
+PRODUCT_DB_PASSWORD=${PRODUCT_DB_PASSWORD:-product_password}
 
 read -p "Enter Product DB name (default: product_db): " PRODUCT_DB_NAME
 PRODUCT_DB_NAME=${PRODUCT_DB_NAME:-product_db}
 
 # JWT Secret
-read -p "Enter JWT secret key: " JWT_SECRET
+read -p "Enter JWT secret key(default: openssl rand -base64 32): " JWT_SECRET
 if [ -z "${JWT_SECRET}" ]
 then
     JWT_SECRET=$(openssl rand -base64 32)
@@ -74,6 +80,7 @@ TIMEZONE=${TIMEZONE}
 GIN_MODE=${GIN_MODE}
 DB_AUTH_PORT=5433
 DB_PRODUCT_PORT=5434
+DB_PORT=5432
 DB_SSLMODE=disable
 
 # Auth Service
@@ -101,5 +108,5 @@ echo "You can now run docker compose up to start the services."
 read -p "Run docker compose up? (y/n): " RUN_DOCKER_COMPOSE
 if [ "${RUN_DOCKER_COMPOSE}" == "y" ]
 then
-    docker compose up
+    docker compose -f docker-compose.dev.local.yml up --build
 fi
