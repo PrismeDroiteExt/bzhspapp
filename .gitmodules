@@ -1,12 +1,16 @@
 [submodule "bzhspauth"]
 	path = bzhspauth
 	url = git@github.com:prismedroiteext/bzhspauth
+	branch = dev
 [submodule "bzhspproduct"]
 	path = bzhspproduct
 	url = git@github.com:prismedroiteext/bzhspproduct
+	branch = dev
 [submodule "bzhspfront"]
 	path = bzhspfront
 	url = git@github.com:prismedroiteext/bzhspfront
+	branch = dev
 [submodule "bzhspdeploy"]
 	path = bzhspdeploy
 	url = git@github.com:prismedroiteext/bzhspdeploy
+	branch = dev
