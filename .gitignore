@@ -405,3 +405,4 @@ FodyWeavers.xsd
 *.sln.iml
 auth-service/cmd/web/main
 product-service/cmd/web/main
+volumes
