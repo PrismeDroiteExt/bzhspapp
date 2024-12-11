@@ -37,8 +37,8 @@ The project follows a typical Go application structure that you can find in [arc
 1. Clone the repository:
 
    ```bash
-   git clone --recurse-submodules https://github.com/PrismeDroiteExt/bzhspback.git
-   cd breizhsport-backend
+   git clone --recurse-submodules git@github.com:PrismeDroiteExt/bzhspapp.git
+   cd bzhspapp
    ```
 
 2. Create a `.env` file in the root directory. You can use the `env-create.sh` script to help you set up the environment variables:
