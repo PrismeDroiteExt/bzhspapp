@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          ssh-key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           submodules: recursive
           persist-credentials: false  # Prevents default token from overriding SSH
 
