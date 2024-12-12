@@ -22,9 +22,18 @@ jobs:
           submodules: recursive
           persist-credentials: false  # Prevents default token from overriding SSH
 
-      - name: 'Update submodules'
+      - name: Configure Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update submodules
         run: |
           git submodule update --remote --recursive
-          git add .
-          git commit -m "Update submodules to latest commits on dev branch"
-          git push origin HEAD:${{ github.head_ref }}
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "Update submodules to latest commits on dev branch"
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            echo "No changes to commit"
+          fi
