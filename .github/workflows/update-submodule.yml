@@ -10,9 +10,18 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-    - name: 'Update submodule'
-      run: |
-        git submodule update --init --recursive
-        git submodule update --remote --merge
-        git pull --recurse-submodules
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
         
+      - name: 'Update submodule'
+        run: |
+          git submodule update --init --recursive
+          git submodule update --remote --merge
+          git pull --recurse-submodules
+          git submodule foreach git pull origin dev
+          git add bzhspauth bzhspproduct bzhspfront bzhspdeploy
+          git commit -m "Update submodules to latest commits on dev branch"
+          git push origin HEAD:${{ github.head_ref }}
+
