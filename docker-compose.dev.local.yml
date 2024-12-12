@@ -75,6 +75,9 @@ services:
       - ./bzhspfront/app:/app
     environment:
       - NODE_ENV=development
-      - AUTH_API_URL=http://localhost:8081
-      - PRODUCT_API_URL=http://localhost:8082
+      - AUTH_API_URL=http://auth-service:8082
+      - PRODUCT_API_URL=http://product-service:8081
+    depends_on:
+      - auth-service
+      - product-service
     entrypoint: "./dev-entrypoint.sh"
