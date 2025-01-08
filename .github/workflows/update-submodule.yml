@@ -1,6 +1,8 @@
 name: Update Submodules
 
 on:
+  repository_dispatch:
+    types: [submodule-updated]
   pull_request:
     branches: [dev]
 
@@ -38,3 +40,12 @@ jobs:
           else
             echo "No changes to commit"
           fi
+
+      - name: Update SuperApp
+        if: always()
+        run: |
+          echo "Updating SuperApp with the latest submodule changes"
+          # Add your commands to update the SuperApp here
+          # For example:
+          # cd path/to/SuperApp
+          # ./update_script.sh
