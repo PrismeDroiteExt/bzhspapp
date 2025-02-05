@@ -1,0 +1,18 @@
+# traefik-dynamic.yml
+
+http:
+  routers:
+    traefik-dashboard:
+      rule: "Host(`kiloutyg.com`) && PathPrefix(`/traefik`) || Host(`100.116.170.49`) && PathPrefix(`/traefik`) || Host(`10.10.0.7`) && PathPrefix(`/traefik`) "
+      entryPoints:
+        - "websecure"
+      service: "api@internal"
+      middlewares:
+        - "dashboard-auth"
+      tls:
+
+  middlewares:
+    dashboard-auth:
+      basicAuth:
+        users:
+          - "admin:$apr1$JibIH1e/$h3oqCp/zN/4iB.or0KNEY."

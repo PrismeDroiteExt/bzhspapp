@@ -1,8 +1,19 @@
 services:
-  auth-service:
-    image: ghcr.io/prismedroiteext/bzhspauth
+  traefik:
+    image: traefik:latest
     ports:
-      - "8082:8082"
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml
+      - ./traefik-dynamic.yml:/etc/traefik/dynamic.yml
+      - ./traefik-acme.json:/etc/traefik/acme/acme.json
+
+
+  auth-service:
+    image: ghcr.io/prismedroiteext/bzhspauth:dev
     environment:
       - AUTH_DB_HOST=${AUTH_DB_HOST}
       - AUTH_DB_USER=${AUTH_DB_USER}
@@ -13,8 +24,17 @@ services:
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
       - JWT_SECRET=${JWT_SECRET}
+    # ports:
+    #   - "8082:8082"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth-service.rule=Host(`kiloutyg.com`) && PathPrefix(`/auth`) || Host(`100.116.170.49`) && PathPrefix(`/auth`) || Host(`10.10.0.7`) && PathPrefix(`/auth`) "
+      - "traefik.http.routers.auth-service.entrypoints=websecure"
+      - "traefik.http.middlewares.auth-strip.stripPrefix=/auth"
+      - "traefik.http.routers.auth-service.middlewares=auth-strip@docker"
     depends_on:
       - db-auth
+
   db-auth:
     image: postgres:17
     environment:
@@ -28,9 +48,7 @@ services:
 
 
   product-service:
-    image: ghcr.io/prismedroiteext/bzhspproduct
-    ports:
-      - "8081:8081"
+    image: ghcr.io/prismedroiteext/bzhspproduct:dev
     environment:
       - PRODUCT_DB_HOST=${PRODUCT_DB_HOST}
       - PRODUCT_DB_USER=${PRODUCT_DB_USER}
@@ -40,6 +58,14 @@ services:
       - DB_SSLMODE=${DB_SSLMODE}
       - DB_TIMEZONE=${TIMEZONE}
       - GIN_MODE=${GIN_MODE}
+    # ports:
+    #   - "8081:8081"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.product-service.rule=Host(`kiloutyg.com`) && PathPrefix(`/product`) || Host(`100.116.170.49`) && PathPrefix(`/product`) || Host(`10.10.0.7`) && PathPrefix(`/product`) "
+      - "traefik.http.routers.product-service.entrypoints=websecure"
+      - "traefik.http.middlewares.product-strip.stripPrefix=/product"
+      - "traefik.http.routers.product-service.middlewares=product-strip@docker"
     depends_on:
       - db-product
   db-product:
@@ -54,9 +80,15 @@ services:
       - "5434:5432"
 
   front-service:
-    image: ghcr.io/prismedroiteext/bzhspfront
-    ports:
-      - "3000:3000"
+    image: ghcr.io/prismedroiteext/bzhspfront:dev
+    # ports:
+    #   - "3000:3000"
+    labels:
+      - "traefik.enable=true" 
+      - "traefik.http.routers.front-service.rule=Host(`kiloutyg.com`) && PathPrefix(`/front`) || Host(`100.116.170.49`) && PathPrefix(`/front`) || Host(`10.10.0.7`) && PathPrefix(`/front`) "
+      - "traefik.http.routers.front-service.entrypoints=websecure"
+      - "traefik.http.middlewares.front-strip.stripPrefix=/front"
+      - "traefik.http.routers.front-service.middlewares=front-strip@docker"
     environment:
       - NODE_ENV=${NODE_ENV}
       - AUTH_API_URL=${AUTH_API_URL}

@@ -1,4 +1,4 @@
-name: Update Submodules
+name: Update App and Submodules
 
 on:
   repository_dispatch:
@@ -49,3 +49,19 @@ jobs:
           # For example:
           # cd path/to/SuperApp
           # ./update_script.sh
+
+  auto-assign-pr-reviews:
+    needs: update-submodules
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+    - name: 'Auto-assign issue'
+      uses: pozil/auto-assign-issue@v1
+      with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          assignees: jehanvaire,T4rg3n,kiloutyg,RomainCrz
+          numOfAssignee: 3
+          abortIfPreviousAssignees: true 
+          allowSelfAssign: true
