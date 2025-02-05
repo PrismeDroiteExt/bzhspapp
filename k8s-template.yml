@@ -1,0 +1,348 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bzhspapp
+  labels:
+    name: bzhspapp
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-product-pvc
+  namespace: bzhspapp
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-product
+  namespace: bzhspapp
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: db-product
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-product
+  namespace: bzhspapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-product
+  template:
+    metadata:
+      labels:
+        app: db-product
+    spec:
+      containers:
+        - name: db-product
+          image: postgres:17
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-product-secrets
+                  key: PRODUCT_DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-product-secrets
+                  key: PRODUCT_DB_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: db-product-secrets
+                  key: PRODUCT_DB_NAME
+          volumeMounts:
+            - name: db-product-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-product-storage
+          persistentVolumeClaim:
+            claimName: db-product-pvc
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-product-secrets
+  namespace: bzhspapp
+type: Opaque
+data:
+  PRODUCT_DB_USER: cHJvZHVjdF91c2Vy    # product_user
+  PRODUCT_DB_PASSWORD: cHJvZHVjdF9wYXNzd29yZA==    # product_password
+  PRODUCT_DB_NAME: cHJvZHVjdF9kYg==    # product_db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-auth-pvc
+  namespace: bzhspapp
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-auth
+  namespace: bzhspapp
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: db-auth
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-auth
+  namespace: bzhspapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db-auth
+  template:
+    metadata:
+      labels:
+        app: db-auth
+    spec:
+      containers:
+        - name: db-auth
+          image: postgres:17
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-auth-secrets
+                  key: AUTH_DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-auth-secrets
+                  key: AUTH_DB_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: db-auth-secrets
+                  key: AUTH_DB_NAME
+          volumeMounts:
+            - name: db-auth-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-auth-storage
+          persistentVolumeClaim:
+            claimName: db-auth-pvc
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-auth-secrets
+  namespace: bzhspapp
+type: Opaque
+data:
+  AUTH_DB_USER: YXV0aF91c2Vy    # auth_user
+  AUTH_DB_PASSWORD: YXV0aF9wYXNzd29yZA==    # auth_password
+  AUTH_DB_NAME: YXV0aF9kYg==    # auth_db
+  JWT_SECRET: and0X3NlY3JldA==    # jwt_secret
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: front-config
+  namespace: bzhspapp
+data:
+  NODE_ENV: "production"
+  API_URL: "http://product-service:8081"
+  AUTH_URL: "http://auth-service:8082"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-service
+  namespace: bzhspapp
+spec:
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: front-service
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-service
+  namespace: bzhspapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-service
+  template:
+    metadata:
+      labels:
+        app: front-service
+    spec:
+      containers:
+        - name: front-service
+          image: front-service:latest
+          imagePullPolicy: Never
+          #image: ghcr.io/prismedroiteext/bzhspfront:dev
+          #imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: front-config
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-config
+  namespace: bzhspapp
+data:
+  DB_PORT: "5432"
+  DB_SSLMODE: "disable"
+  DB_TIMEZONE: "Europe/Paris"
+  GIN_MODE: "release"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: bzhspapp
+spec:
+  ports:
+    - port: 8081
+      targetPort: 8081
+  selector:
+    app: product-service
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: bzhspapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+        - name: product-service
+          image: product-service:latest
+          imagePullPolicy: Never
+          #image: ghcr.io/prismedroiteext/bzhspproduct:dev
+          #imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+          env:
+            - name: PRODUCT_DB_HOST
+              value: db-product
+          envFrom:
+            - configMapRef:
+                name: product-config
+            - secretRef:
+                name: db-product-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+  namespace: bzhspapp
+data:
+  DB_PORT: "5432"
+  DB_SSLMODE: "disable"
+  DB_TIMEZONE: "Europe/Paris"
+  GIN_MODE: "release"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: bzhspapp
+spec:
+  ports:
+    - port: 8082
+      targetPort: 8082
+  selector:
+    app: auth-service
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: bzhspapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: auth-service:latest
+          imagePullPolicy: Never
+          #image: ghcr.io/prismedroiteext/bzhspauth:dev
+          #imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: AUTH_DB_HOST
+              value: db-auth
+          envFrom:
+            - configMapRef:
+                name: auth-config
+            - secretRef:
+                name: db-auth-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
