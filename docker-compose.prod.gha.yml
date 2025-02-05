@@ -4,10 +4,14 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "8080:8080"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik.yml:/etc/traefik/traefik.yml
       - ./traefik-dynamic.yml:/etc/traefik/dynamic.yml
-      - ./traefik-acme.json:/etc/traefik/acme.json
+      - ./traefik-acme.json:/etc/traefik/acme/acme.json
+
+
   auth-service:
     image: ghcr.io/prismedroiteext/bzhspauth:dev
     environment:
@@ -24,9 +28,9 @@ services:
     #   - "8082:8082"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth-service.rule=Host(`${AUTH_HOST}`) && PathPrefix(`/auth`)"
-      - "traefik.http.routers.auth-service.entrypoints=web"
-      - "traefik.http.middlewares.auth-strip.stripprefix.prefixes=/auth"
+      - "traefik.http.routers.auth-service.rule=Host(`kiloutyg.com`) && PathPrefix(`/auth`) || Host(`100.116.170.49`) && PathPrefix(`/auth`) || Host(`10.10.0.7`) && PathPrefix(`/auth`) "
+      - "traefik.http.routers.auth-service.entrypoints=websecure"
+      - "traefik.http.middlewares.auth-strip.stripPrefix=/auth"
       - "traefik.http.routers.auth-service.middlewares=auth-strip@docker"
     depends_on:
       - db-auth
@@ -58,9 +62,9 @@ services:
     #   - "8081:8081"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.product-service.rule=Host(`${PRODUCT_HOST}`) && PathPrefix(`/product`)"
-      - "traefik.http.routers.product-service.entrypoints=web"
-      - "traefik.http.middlewares.product-strip.stripprefix.prefixes=/product"
+      - "traefik.http.routers.product-service.rule=Host(`kiloutyg.com`) && PathPrefix(`/product`) || Host(`100.116.170.49`) && PathPrefix(`/product`) || Host(`10.10.0.7`) && PathPrefix(`/product`) "
+      - "traefik.http.routers.product-service.entrypoints=websecure"
+      - "traefik.http.middlewares.product-strip.stripPrefix=/product"
       - "traefik.http.routers.product-service.middlewares=product-strip@docker"
     depends_on:
       - db-product
@@ -80,10 +84,10 @@ services:
     # ports:
     #   - "3000:3000"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.front-service.rule=Host(`${FRONT_HOST}`) && PathPrefix(`/front`)"
-      - "traefik.http.routers.front-service.entrypoints=web"
-      - "traefik.http.middlewares.front-strip.stripprefix.prefixes=/front"
+      - "traefik.enable=true" 
+      - "traefik.http.routers.front-service.rule=Host(`kiloutyg.com`) && PathPrefix(`/front`) || Host(`100.116.170.49`) && PathPrefix(`/front`) || Host(`10.10.0.7`) && PathPrefix(`/front`) "
+      - "traefik.http.routers.front-service.entrypoints=websecure"
+      - "traefik.http.middlewares.front-strip.stripPrefix=/front"
       - "traefik.http.routers.front-service.middlewares=front-strip@docker"
     environment:
       - NODE_ENV=${NODE_ENV}
